@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#18251f" />
+    <meta name="description" content="Play Osc’ird, a simultaneous-order control wargame, against a computer opponent." />
+    <title>Osc’ird — The Field of Control</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#game-board">Skip to battlefield</a>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">A game of position and consequence</p>
+        <h1>OSC’IRD</h1>
+      </div>
+      <p class="header-rule">Shape the field until nowhere safe remains.</p>
+    </header>
+
+    <main>
+      <section id="welcome" class="welcome" aria-labelledby="welcome-title">
+        <div class="welcome-copy">
+          <p class="chapter">Field Manual · Standard Battle</p>
+          <h2 id="welcome-title">Every formation casts a shadow.</h2>
+          <p>
+            Give three secret orders. Both armies move together. Control is then counted across
+            the entire field, and every unit caught on enemy ground is destroyed.
+          </p>
+          <div class="principles" aria-label="Core game principles">
+            <div><span>01</span><strong>Deploy</strong><small>Build the opening formation.</small></div>
+            <div><span>02</span><strong>Order</strong><small>Choose three distinct units.</small></div>
+            <div><span>03</span><strong>Resolve</strong><small>Move, contest, and survive.</small></div>
+          </div>
+        </div>
+        <form id="new-game-form" class="field-card">
+          <p class="eyebrow">Choose a field</p>
+          <label class="scenario-option">
+            <input type="radio" name="scenario" value="skirmish" checked />
+            <span><strong>The Narrow Field</strong><small>8 × 8 · 16 units per army · recommended first game</small></span>
+          </label>
+          <label class="scenario-option">
+            <input type="radio" name="scenario" value="battle" />
+            <span><strong>The Open Campaign</strong><small>16 × 16 · 32 units per army · longer battle</small></span>
+          </label>
+          <button class="primary-button" type="submit">Begin deployment</button>
+          <button id="continue-button" class="text-button" type="button" hidden>Continue saved battle</button>
+        </form>
+      </section>
+
+      <section id="game" class="game-shell" hidden aria-label="Osc’ird battle">
+        <div class="game-topbar">
+          <div>
+            <p id="scenario-name" class="eyebrow"></p>
+            <h2 id="phase-heading">Deployment</h2>
+          </div>
+          <div class="round-seal" aria-label="Current round"><span>Round</span><strong id="round-number">—</strong></div>
+          <div class="top-actions">
+            <button id="control-toggle" class="quiet-button" type="button" aria-pressed="true">Control visible</button>
+            <button id="rules-button" class="quiet-button" type="button">Field guide</button>
+            <button id="new-battle-button" class="quiet-button" type="button">New battle</button>
+          </div>
+        </div>
+
+        <div class="game-layout">
+          <section class="board-column" aria-label="Battlefield">
+            <div id="status-banner" class="status-banner" role="status"></div>
+            <div id="game-board" class="board" role="grid" aria-label="Battlefield grid"></div>
+            <div class="control-legend" aria-label="Control overlay legend">
+              <span><i class="human-control"></i>Your control</span>
+              <span><i class="contested-control"></i>Contested</span>
+              <span><i class="computer-control"></i>Enemy control</span>
+            </div>
+          </section>
+
+          <aside class="command-panel" aria-label="Command panel">
+            <section id="deployment-panel">
+              <p class="panel-kicker">Your reserve</p>
+              <h3>Place the next unit</h3>
+              <p class="panel-note">Select a unit, then a highlighted square. The opposing general responds after each placement.</p>
+              <div id="reserve-list" class="reserve-list"></div>
+            </section>
+
+            <section id="orders-panel" hidden>
+              <p class="panel-kicker">Secret orders</p>
+              <h3><span id="order-count">0</span> selected</h3>
+              <p id="selection-help" class="panel-note">Select one of your units to see its legal destinations.</p>
+              <div id="selected-unit-card" class="selected-unit-card" hidden>
+                <strong id="selected-unit-name"></strong>
+                <span id="selected-unit-detail"></span>
+                <button id="rotate-button" class="quiet-button" type="button">Rotate in place</button>
+              </div>
+              <ol id="orders-list" class="orders-list"></ol>
+              <button id="lock-orders-button" class="primary-button" type="button">Lock orders</button>
+              <button id="clear-orders-button" class="text-button" type="button">Clear orders</button>
+            </section>
+
+            <section class="casualty-ledger">
+              <p class="panel-kicker">Army strength</p>
+              <div><span>Your army</span><strong id="human-strength">0</strong></div>
+              <div><span>Opposing army</span><strong id="computer-strength">0</strong></div>
+            </section>
+
+            <section class="battle-log">
+              <p class="panel-kicker">Dispatches</p>
+              <ol id="battle-log"></ol>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="rules-dialog">
+      <form method="dialog"><button class="dialog-close" aria-label="Close field guide">×</button></form>
+      <p class="chapter">Condensed field guide</p>
+      <h2>How the battle resolves</h2>
+      <ol>
+        <li><strong>Orders:</strong> choose three distinct units, or every remaining unit if fewer than three survive.</li>
+        <li><strong>Movement:</strong> paths are orthogonal and may turn. Enemy-occupied squares block movement.</li>
+        <li><strong>Collision:</strong> higher Initiative takes a shared destination; ties send both units back.</li>
+        <li><strong>Control:</strong> compare the sum projected by each army on every square.</li>
+        <li><strong>Casualties:</strong> a unit ending on enemy-controlled ground is destroyed.</li>
+        <li><strong>Cavalry:</strong> projects 4 control onto an enemy without adjacent allies. If the opposing control needed to destroy Cavalry comes only from units also marked for destruction, the Cavalry survives.</li>
+      </ol>
+      <p>Rotation consumes an order and does not count as a safe move. Artillery may rotate but cannot move.</p>
+    </dialog>
+
+    <dialog id="result-dialog">
+      <p class="chapter">Battle concluded</p>
+      <h2 id="result-title"></h2>
+      <p id="result-reason"></p>
+      <form method="dialog"><button class="primary-button">Return to the field</button></form>
+    </dialog>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
