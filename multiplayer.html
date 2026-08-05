@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#071426" />
+    <meta name="description" content="Play a private head-to-head match of Massivecraft's Wars through an invite link." />
+    <title>Online Battle · Massivecraft's Wars</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="multiplayer.css" />
+  </head>
+  <body data-screen="online">
+    <a class="skip-link" href="#online-main">Skip to online battle</a>
+    <header class="site-header online-header">
+      <p class="eyebrow">Private head-to-head battle · v0.7.1</p>
+      <h1>Massivecraft's Wars</h1>
+      <a class="back-link" href="index.html">← Return to single-player</a>
+    </header>
+
+    <main id="online-main" class="online-main">
+      <section id="server-warning" class="server-warning" hidden aria-labelledby="server-warning-title">
+        <p class="chapter">One-time setup required</p>
+        <h2 id="server-warning-title">The multiplayer server is not connected yet.</h2>
+        <p>The game files are ready, but the server address is still blank. Follow <a href="MULTIPLAYER_SETUP_GUIDE.md">the multiplayer setup guide</a>, paste the Worker address into <code>js/online/config.js</code>, and upload that changed file.</p>
+      </section>
+
+      <section id="entry-screen" class="online-entry" aria-labelledby="entry-title">
+        <div>
+          <p class="chapter">Private rooms</p>
+          <h2 id="entry-title">Challenge one invited opponent.</h2>
+          <p>There is no public matchmaking and no account is required. Create a room, send its private link to one person, agree on the battlefield, then deploy and submit untimed secret orders.</p>
+          <div class="online-assurances">
+            <span>Invite-only room</span>
+            <span>Secret simultaneous orders</span>
+            <span>Reconnect after refreshing</span>
+          </div>
+        </div>
+
+        <form id="create-room-form" class="field-card online-card">
+          <p class="eyebrow">Host a battle</p>
+          <label for="host-name">Your display name</label>
+          <input id="host-name" name="hostName" maxlength="32" autocomplete="nickname" required />
+          <button class="primary-button" type="submit">Create private room</button>
+        </form>
+
+        <form id="join-room-form" class="field-card online-card" hidden>
+          <p class="eyebrow">Invitation received</p>
+          <h3>Join room <span id="join-room-code"></span></h3>
+          <label for="guest-name">Your display name</label>
+          <input id="guest-name" name="guestName" maxlength="32" autocomplete="nickname" required />
+          <button class="primary-button" type="submit">Accept invitation</button>
+        </form>
+      </section>
+
+      <section id="room-screen" class="room-screen" hidden aria-labelledby="room-title">
+        <div class="room-heading">
+          <div>
+            <p class="eyebrow">Private room <span id="room-code"></span></p>
+            <h2 id="room-title">Prepare the battlefield</h2>
+          </div>
+          <div class="connection-controls">
+            <div id="connection-badge" class="connection-badge" data-status="connecting">Connecting…</div>
+            <button class="quiet-button reconnect-button" type="button" data-reconnect hidden>Reconnect</button>
+          </div>
+        </div>
+
+        <div class="room-grid">
+          <section class="field-card room-status-card">
+            <p class="panel-kicker">Players</p>
+            <div class="player-row"><span>You</span><strong id="you-name"></strong><i id="you-connection"></i></div>
+            <div class="player-row"><span>Opponent</span><strong id="opponent-name">Waiting for invitation…</strong><i id="opponent-connection"></i></div>
+            <div id="invite-panel" class="invite-panel">
+              <label for="invite-link">Send this private link to one person</label>
+              <div><input id="invite-link" readonly /><button id="copy-invite-button" class="quiet-button" type="button">Copy link</button></div>
+              <p>Anyone holding this link can claim the guest seat. Do not post it publicly.</p>
+            </div>
+          </section>
+
+          <form id="field-form" class="field-card battlefield-form" hidden>
+            <p class="panel-kicker">Host chooses · Guest approves</p>
+            <h3>Choose the proposed field</h3>
+            <label class="scenario-option">
+              <input type="radio" name="scenario" value="skirmish" checked />
+              <span><strong>The Narrow Field</strong><small>8 × 8 · 16 units per army</small></span>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="scenario" value="battle" />
+              <span><strong>The Open Campaign</strong><small>16 × 16 · 32 units per army</small></span>
+            </label>
+            <fieldset class="terrain-mode-picker">
+              <legend>Terrain placement</legend>
+              <label><input type="radio" name="terrainMode" value="random" checked /><span><strong>Randomize</strong><small>The server creates the field.</small></span></label>
+              <label><input type="radio" name="terrainMode" value="manual" /><span><strong>Manual</strong><small>Paint the field yourself.</small></span></label>
+            </fieldset>
+            <button class="primary-button" type="submit">Prepare proposal</button>
+          </form>
+
+          <section id="proposal-status" class="field-card proposal-status" hidden>
+            <p class="panel-kicker">Battlefield proposal</p>
+            <h3 id="proposal-title"></h3>
+            <p id="proposal-copy"></p>
+            <div id="proposal-actions" class="proposal-actions" hidden>
+              <button id="approve-field-button" class="primary-button" type="button">Approve battlefield</button>
+              <button id="decline-field-button" class="text-button" type="button">Request a different field</button>
+            </div>
+          </section>
+        </div>
+
+        <section id="field-preview" class="field-preview" hidden>
+          <div class="board-frame"><div id="preview-board" class="board terrain-preview" role="grid" aria-label="Proposed battlefield"></div></div>
+          <div id="preview-terrain-readout" class="terrain-readout"><strong>Plain</strong><span>No special effect.</span></div>
+        </section>
+      </section>
+
+      <section id="terrain-editor" class="terrain-editor" hidden aria-labelledby="terrain-editor-title">
+        <div class="room-heading">
+          <div><p class="eyebrow">Host battlefield editor</p><h2 id="terrain-editor-title">Paint the proposed field</h2></div>
+          <button id="cancel-terrain-button" class="quiet-button" type="button">Back to room</button>
+        </div>
+        <div class="game-layout">
+          <div class="board-column">
+            <div class="status-banner">Place as much terrain as you wish outside both armies’ starting rows. Road over River—or River over Road—creates a Bridge.</div>
+            <div class="board-frame"><div id="terrain-board" class="board" role="grid" aria-label="Manual terrain editor"></div></div>
+            <div id="editor-terrain-readout" class="terrain-readout"><strong>Plain</strong><span>No special effect.</span></div>
+          </div>
+          <aside class="command-panel">
+            <p class="panel-kicker">Terrain palette</p>
+            <h3>Choose a tile</h3>
+            <div id="online-terrain-palette" class="terrain-palette"></div>
+            <button id="submit-manual-field-button" class="primary-button" type="button">Send field for approval</button>
+            <button id="clear-online-terrain-button" class="text-button" type="button">Clear all terrain</button>
+          </aside>
+        </div>
+      </section>
+
+      <section id="battle-screen" class="game-shell online-battle" hidden aria-label="Online Massivecraft's Wars battle">
+        <div class="game-topbar">
+          <div>
+            <p id="online-scenario-name" class="eyebrow"></p>
+            <p id="online-opponent-name" class="difficulty-name"></p>
+            <h2 id="online-phase-heading">Deployment</h2>
+          </div>
+          <div class="round-seal" aria-label="Current round"><span>Round</span><strong id="online-round-number">—</strong></div>
+          <div class="top-actions">
+            <span id="battle-connection-badge" class="connection-badge compact" data-status="connecting">Connecting…</span>
+            <button class="quiet-button reconnect-button" type="button" data-reconnect hidden>Reconnect</button>
+            <button id="online-control-toggle" class="quiet-button" type="button" aria-pressed="true">Control shading visible</button>
+            <button id="resign-button" class="quiet-button danger-button" type="button">Resign</button>
+          </div>
+        </div>
+
+        <div class="game-layout">
+          <section class="board-column" aria-label="Battlefield">
+            <div id="online-status-banner" class="status-banner" role="status"></div>
+            <div class="board-frame"><div id="online-game-board" class="board" role="grid" aria-label="Online battlefield grid"></div></div>
+            <div class="control-legend" aria-label="Control display legend">
+              <span><i class="human-control"></i>Blue: your control</span>
+              <span><i class="contested-control"></i>Silver: contested</span>
+              <span><i class="computer-control"></i>Red: opponent control</span>
+              <span class="legend-note">Your army is always displayed at the bottom.</span>
+            </div>
+            <div id="online-terrain-readout" class="terrain-readout"><strong>Plain</strong><span>No special effect.</span></div>
+          </section>
+
+          <aside class="command-panel" aria-label="Online command panel">
+            <section id="online-deployment-panel">
+              <p class="panel-kicker">Your reserve</p>
+              <h3 id="deployment-turn-title">Alternating deployment</h3>
+              <p id="deployment-note" class="panel-note"></p>
+              <div id="online-reserve-list" class="reserve-list"></div>
+            </section>
+
+            <section id="online-orders-panel" hidden>
+              <p class="panel-kicker">Secret orders</p>
+              <h3><span id="online-order-count">0 / 3</span> prepared</h3>
+              <p id="online-selection-help" class="panel-note">Select one of your units to see its possible destinations.</p>
+              <div id="online-selected-unit-card" class="selected-unit-card" hidden>
+                <strong id="online-selected-unit-name"></strong>
+                <span id="online-selected-unit-detail"></span>
+              </div>
+              <ol id="online-orders-list" class="orders-list"></ol>
+              <button id="submit-orders-button" class="primary-button" type="button">Commit secret orders</button>
+              <button id="clear-online-orders-button" class="text-button" type="button">Clear draft</button>
+              <button id="withdraw-orders-button" class="text-button" type="button" hidden>Withdraw committed orders</button>
+            </section>
+
+            <section class="readiness-panel">
+              <p class="panel-kicker">Commanders</p>
+              <div><span>You</span><strong id="you-ready">Preparing</strong></div>
+              <div><span id="opponent-ready-name">Opponent</span><strong id="opponent-ready">Preparing</strong></div>
+            </section>
+
+            <section class="casualty-ledger">
+              <p class="panel-kicker">Army strength</p>
+              <div><span>Your army</span><strong id="online-human-strength">0</strong></div>
+              <div><span>Opponent army</span><strong id="online-computer-strength">0</strong></div>
+            </section>
+
+            <section class="battle-log">
+              <p class="panel-kicker">Dispatches</p>
+              <ol id="online-battle-log"></ol>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="online-message-dialog">
+      <p class="chapter">Online battle</p>
+      <h2 id="online-message-title"></h2>
+      <p id="online-message-copy"></p>
+      <form method="dialog"><button class="primary-button">Return</button></form>
+    </dialog>
+
+    <script type="module" src="js/online/online-controller.js"></script>
+  </body>
+</html>
