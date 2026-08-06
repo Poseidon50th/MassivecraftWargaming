@@ -1,0 +1,21 @@
+{
+  "name": "massivecraft-wars",
+  "version": "0.8.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "test": "node --test",
+    "test:certification": "RUN_FULL_AI_CERTIFICATION=1 node --test tests/full-match-certification.test.js",
+    "test:multiplayer-live": "node tests/live-multiplayer-certification.mjs",
+    "check": "npm test && npm run build && node tests/verify-build.mjs",
+    "check:multiplayer": "npm --prefix multiplayer-server test",
+    "serve": "python3 -m http.server 4173"
+  },
+  "devDependencies": {
+    "happy-dom": "^18.0.1",
+    "vite": "^7.0.0",
+    "ws": "^8.21.2"
+  }
+}
