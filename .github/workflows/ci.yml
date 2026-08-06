@@ -1,0 +1,25 @@
+name: Test and build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix multiplayer-server
+      - run: npm run check
+      - run: npm run check:multiplayer
+      - run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
+        working-directory: multiplayer-server
