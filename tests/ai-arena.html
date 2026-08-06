@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Massivecraft’s Wars · Live AI Certification</title>
+  <style>
+    :root { color-scheme: dark; --navy: #061321; --panel: #0d2237; --silver: #c7d4e0; --blue: #48a9ff; --red: #f05c68; --gold: #e7bc62; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--silver); background: radial-gradient(circle at top, #123456 0, var(--navy) 48rem); font: 14px/1.45 Inter, system-ui, sans-serif; }
+    main { width: min(1500px, 96vw); margin: 0 auto; padding: 22px 0 36px; }
+    header, .panel { border: 1px solid #31506b; background: rgba(8, 25, 42, .92); box-shadow: 0 12px 40px #0007; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 17px 20px; }
+    h1, h2, p { margin: 0; }
+    h1 { color: #fff; font: 700 clamp(1.1rem, 2vw, 1.7rem)/1.1 Georgia, serif; }
+    header p { margin-top: 5px; color: #91a9bc; }
+    button { border: 1px solid #88b9dd; border-radius: 4px; padding: 10px 18px; color: #071727; background: linear-gradient(#e3f3ff, #85bee7); font-weight: 800; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .layout { display: grid; grid-template-columns: minmax(430px, 1fr) minmax(330px, 460px); gap: 16px; margin-top: 16px; align-items: start; }
+    .panel { padding: 14px; }
+    .match-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    #match-title { color: #fff; font: 700 1.1rem Georgia, serif; }
+    #match-state { color: var(--gold); font-weight: 800; }
+    #board { display: grid; grid-template-columns: repeat(var(--size), minmax(0, 1fr)); aspect-ratio: 1; width: 100%; border: 2px solid #7893a8; background: #132b3d; }
+    .square { position: relative; min-width: 0; min-height: 0; overflow: hidden; border: 1px solid #ffffff21; background: #243b42; }
+    .square:nth-child(even) { background-color: #1b333c; }
+    .terrain { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+    .coord { position: absolute; top: 1px; left: 2px; z-index: 3; color: #e5edf4aa; font-size: clamp(5px, .62vw, 9px); }
+    .control { position: absolute; right: 2px; bottom: 1px; z-index: 3; padding: 0 2px; border-radius: 3px; color: #fff; background: #00101dcc; font-size: clamp(5px, .62vw, 9px); }
+    .control b:first-child { color: var(--blue); } .control b:last-child { color: var(--red); }
+    .unit { position: absolute; z-index: 2; inset: 12%; display: grid; place-items: center; border: 2px solid; border-radius: 50%; background: #07131ed9; box-shadow: 0 2px 7px #000a; }
+    .unit.human { border-color: var(--blue); } .unit.computer { border-color: var(--red); }
+    .unit img { width: 74%; height: 74%; object-fit: contain; }
+    .facing { position: absolute; top: -27%; left: 50%; translate: -50% 0; color: #fff; font-weight: 900; text-shadow: 0 1px 3px #000; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 10px 0; }
+    .stat { padding: 8px; border: 1px solid #2d4c65; background: #0a1b2c; text-align: center; }
+    .stat b { display: block; color: #fff; font-size: 1.15rem; }
+    .dispatch { min-height: 120px; margin-top: 10px; padding: 10px; border-left: 3px solid var(--gold); background: #091a29; }
+    .dispatch p + p { margin-top: 8px; }
+    #results { display: grid; gap: 7px; margin-top: 10px; }
+    .result { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 9px 10px; border: 1px solid #29445b; background: #081a2a; }
+    .result strong { color: #fff; } .result span { color: #91a9bc; }
+    .result.pass { border-left: 4px solid #50d890; }
+    .result.fail { border-left: 4px solid var(--red); }
+    .note { margin-top: 10px; color: #8ea5b8; font-size: .82rem; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } header { align-items: flex-start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div><h1>Massivecraft’s Wars · Live AI Certification</h1><p>Eight complete battles · every difficulty · 8×8 and 16×16 · randomized terrain</p></div>
+      <button id="start" type="button">Begin all eight games</button>
+    </header>
+    <div class="layout">
+      <section class="panel">
+        <div class="match-head"><h2 id="match-title">Ready</h2><span id="match-state">0 / 8</span></div>
+        <div id="board" style="--size: 8" aria-label="Live certification battlefield"></div>
+      </section>
+      <aside class="panel">
+        <h2>Current field report</h2>
+        <div class="stats">
+          <div class="stat"><b id="round">—</b>Round</div>
+          <div class="stat"><b id="friendly">—</b>Friendly</div>
+          <div class="stat"><b id="enemy">—</b>Enemy</div>
+          <div class="stat"><b id="thinking">—</b>AI ms</div>
+        </div>
+        <div class="dispatch" id="dispatch"><p>The games will begin when the certification button is pressed.</p></div>
+        <p class="note">The blue QA player and red tested opponent generate secret orders independently from the same public battlefield. No side receives the other side’s committed orders.</p>
+        <h2 style="margin-top:16px">Completed games</h2>
+        <div id="results"></div>
+      </aside>
+    </div>
+  </main>
+  <script type="module" src="./ai-arena.js"></script>
+</body>
+</html>
