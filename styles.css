@@ -50,7 +50,7 @@ a { color: var(--blue-bright); }
 .eyebrow, .chapter, .panel-kicker { margin: 0; color: var(--blue-bright); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
 
 main { max-width: 1500px; margin: 0 auto; padding: clamp(1.2rem, 3vw, 3rem) clamp(1rem, 4vw, 4rem) 4rem; }
-.welcome { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 0.65fr); gap: clamp(2rem, 6vw, 7rem); align-items: start; min-height: 70vh; }
+.welcome { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(25rem, 0.8fr); gap: clamp(2rem, 5vw, 6rem); align-items: start; min-height: 70vh; }
 .welcome h2 { margin: 0.45rem 0 1rem; color: #f2f6fb; font: 600 clamp(2.1rem, 4vw, 4rem)/1 "Cormorant Garamond", serif; }
 .author-note { max-width: 58rem; margin: 0; color: #b6c3d3; font-size: clamp(0.96rem, 1.12vw, 1.1rem); line-height: 1.82; }
 
@@ -375,6 +375,18 @@ dialog li, dialog p { color: #b6c3d3; line-height: 1.58; }
   line-height: 1.45;
 }
 
+.army-picker > .army-mode-note {
+  margin-top: 0.35rem;
+  padding: 0.7rem 0.8rem;
+  border-left: 3px solid var(--blue-bright);
+  color: #c8d8e8;
+  background: rgba(47, 117, 189, 0.11);
+}
+
+.army-mode-note strong {
+  color: #eef5fc;
+}
+
 .army-builder {
   display: grid;
   gap: 0.75rem;
@@ -382,17 +394,17 @@ dialog li, dialog p { color: #b6c3d3; line-height: 1.58; }
 
 .army-builder-rows {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
 }
 
 .army-builder-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.65rem;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: 0.5rem;
   min-width: 0;
-  padding: 0.5rem;
+  padding: 0.6rem;
   border: 1px solid rgba(154, 178, 203, 0.2);
   border-radius: 0.55rem;
   background: rgba(5, 16, 29, 0.56);
@@ -401,6 +413,7 @@ dialog li, dialog p { color: #b6c3d3; line-height: 1.58; }
 .army-builder-unit {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
   min-width: 0;
 }
@@ -412,14 +425,19 @@ dialog li, dialog p { color: #b6c3d3; line-height: 1.58; }
 }
 
 .army-builder-unit strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0;
+  color: #eef5fc;
+  font-size: 0.78rem;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .army-count-controls {
-  display: inline-grid;
-  grid-template-columns: 2rem 2.6rem 2rem;
+  display: grid;
+  grid-template-columns: 2rem minmax(2.4rem, 1fr) 2rem;
   align-items: center;
+  width: 100%;
 }
 
 .army-count-controls button,
@@ -455,6 +473,11 @@ dialog li, dialog p { color: #b6c3d3; line-height: 1.58; }
 .army-warning { flex-basis: 100%; font-size: 0.85rem; }
 .army-warning { margin: 0; color: #f0c88f; }
 
+@media (max-width: 1250px) {
+  .army-builder-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 680px) {
   .army-builder-rows { grid-template-columns: 1fr; }
+  .army-builder-row { grid-template-columns: minmax(0, 1fr) minmax(7rem, 0.8fr); grid-template-rows: auto; align-items: center; }
 }

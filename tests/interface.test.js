@@ -117,6 +117,13 @@ test("deployment remains locked until a difficulty is chosen and Codex requires 
   const begin = document.querySelector("#begin-deployment-button");
   assert.equal(begin.disabled, true);
   assert.equal(document.querySelectorAll("#single-player-army-builder .army-builder-row").length, 6);
+  assert.equal(document.querySelectorAll("#single-player-army-builder .army-builder-unit img").length, 6);
+  assert.deepEqual(
+    [...document.querySelectorAll("#single-player-army-builder .army-builder-unit strong")].map((element) => element.textContent),
+    ["Swords", "Spears", "Axes", "Cavalry", "Muskets", "Artillery"],
+  );
+  assert.match(document.querySelector(".army-mode-note").textContent, /Player vs\. computer games only/i);
+  assert.match(document.querySelector(".army-mode-note").textContent, /battlefield has been approved/i);
   assert.match(document.querySelector("#single-player-army-builder .army-total").textContent, /16 \/ 16/);
 
   click('input[name="scenario"][value="battle"]');
